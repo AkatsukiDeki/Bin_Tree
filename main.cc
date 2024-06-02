@@ -1,26 +1,17 @@
 #include <iostream>
 #include <vector>
-#include <set>
 #include <chrono>
 #include <functional>
 #include "Tree.h"
 
-// Функция для генерации случайных чисел в диапазоне от min до max
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РіРµРЅРµСЂР°С†РёРё СЃР»СѓС‡Р°Р№РЅС‹С… С‡РёСЃРµР» РІ РґРёР°РїР°Р·РѕРЅРµ РѕС‚ min РґРѕ max
 int getRandomNumber(int min, int max) {
     static std::mt19937 mt(std::chrono::high_resolution_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> dist(min, max);
     return dist(mt);
 }
 
-// Функция для заполнения контейнера уникальными случайными числами
-void fillContainer(std::set<int>& container, int size) {
-    container.clear();
-    while (container.size() < size) {
-        container.insert(getRandomNumber(1, 2 * size));
-    }
-}
-
-// Функция для вычисления среднего времени выполнения операции по количеству попыток
+// Р¤СѓРЅРєС†РёСЏ РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ СЃСЂРµРґРЅРµРіРѕ РІСЂРµРјРµРЅРё РІС‹РїРѕР»РЅРµРЅРёСЏ РѕРїРµСЂР°С†РёРё РїРѕ РєРѕР»РёС‡РµСЃС‚РІСѓ РїРѕРїС‹С‚РѕРє
 double calculateAverageTime(int size, int numAttempts, std::function<void()> operation) {
     double totalTime = 0;
     for (int i = 0; i < numAttempts; ++i) {
@@ -32,55 +23,55 @@ double calculateAverageTime(int size, int numAttempts, std::function<void()> ope
     return totalTime / numAttempts;
 }
 
-
 std::vector<int> removeDuplicates(const std::vector<int>& input) {
-    std::vector<int> result;
-
+    MyTree tree;
     for (int num : input) {
-        if (std::find(result.begin(), result.end(), num) == result.end()) {
-            result.push_back(num);
-        }
+        tree.insertRecursive(num);
     }
-
+    std::vector<int> result;
+    tree.inorderTraversal([&](int value) {
+        result.push_back(value);
+        });
     return result;
 }
 
-
 int main() {
-    const int numAttempts = 1000; // Количество попыток для вычисления среднего времени
+    const int numAttempts = 1000; // РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРїС‹С‚РѕРє РґР»СЏ РІС‹С‡РёСЃР»РµРЅРёСЏ СЃСЂРµРґРЅРµРіРѕ РІСЂРµРјРµРЅРё
     std::vector<int> sizes = { 1000, 10000, 100000 };
 
     for (int size : sizes) {
-        std::set<int> container;
+        MyTree tree;
 
-        // Заполнение контейнера уникальными случайными числами
+        // РР·РјРµСЂРµРЅРёРµ РІСЂРµРјРµРЅРё Р·Р°РїРѕР»РЅРµРЅРёСЏ РґРµСЂРµРІР°
         double fillTime = calculateAverageTime(size, numAttempts, [&]() {
-            fillContainer(container, size);
+            for (int i = 0; i < size; ++i) {
+                tree.insertRecursive(getRandomNumber(1, 2 * size));
+            }
             });
 
-        // Измерение времени поиска случайного числа в контейнере
+        // РР·РјРµСЂРµРЅРёРµ РІСЂРµРјРµРЅРё РїРѕРёСЃРєР° СЃР»СѓС‡Р°Р№РЅРѕРіРѕ С‡РёСЃР»Р° РІ РґРµСЂРµРІРµ
         double searchTime = calculateAverageTime(size, numAttempts, [&]() {
             int randomNum = getRandomNumber(1, 2 * size);
-            container.find(randomNum);
+            tree.contains(randomNum);
             });
 
-        // Измерение времени добавления и удаления случайного числа из контейнера
+        // РР·РјРµСЂРµРЅРёРµ РІСЂРµРјРµРЅРё РґРѕР±Р°РІР»РµРЅРёСЏ Рё СѓРґР°Р»РµРЅРёСЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ С‡РёСЃР»Р° РёР· РґРµСЂРµРІР°
         double addRemoveTime = calculateAverageTime(size, numAttempts, [&]() {
             int randomNum = getRandomNumber(1, 2 * size);
-            container.insert(randomNum);
-            container.erase(randomNum);
+            tree.insertRecursive(randomNum);
+            tree.erase(randomNum);
             });
 
-        // Вывод результатов
+        // Р’С‹РІРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
         std::cout << "Size: " << size << std::endl;
         std::cout << "Average fill time: " << fillTime << " seconds" << std::endl;
         std::cout << "Average search time: " << searchTime << " seconds" << std::endl;
         std::cout << "Average add/remove time: " << addRemoveTime << " seconds" << std::endl;
-        std::vector<int> input = { 3, 2, 2, 4 };
 
+        std::vector<int> input = { 3, 2, 2, 4 };
         std::vector<int> result = removeDuplicates(input);
 
-        // Вывод результата
+        // Р’С‹РІРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р°
         std::cout << "Original vector: ";
         for (int num : input) {
             std::cout << num << " ";
