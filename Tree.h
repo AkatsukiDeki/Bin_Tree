@@ -117,6 +117,14 @@ private:
 		return node;
 	}
 
+	void inorderTraversalRecursive(Node* node, std::function<void(int)> callback) {
+		if (node) {
+			inorderTraversalRecursive(node->left, callback);
+			callback(node->value);
+			inorderTraversalRecursive(node->right, callback);
+		}
+	}
+
 
 	void print(Node* ptr) {
 		if (ptr) {
@@ -193,6 +201,10 @@ public:
             return true;
         }
     }
+
+	void inorderTraversal(std::function<void(int)> callback) {
+		inorderTraversalRecursive(root, callback);
+	}
 
     void print() {
         print(root);
