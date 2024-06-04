@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <functional>
+#include <unordered_set>
 #include "Tree.h"
 
 // Функция для генерации случайных чисел в диапазоне от min до max
@@ -23,15 +24,23 @@ double calculateAverageTime(int size, int numAttempts, std::function<void()> ope
     return totalTime / numAttempts;
 }
 
-std::vector<int> removeDuplicates(const std::vector<int>& input) {
-    MyTree tree;
-    for (int num : input) {
-        tree.insertRecursive(num);
-    }
+std::vector<int> removeDuplicatesUnique(const std::vector<int>& input) {
+    std::unordered_set<int> uniqueElements;
+    std::unordered_set<int> toRemove;
     std::vector<int> result;
-    tree.inorderTraversal([&](int value) {
-        result.push_back(value);
-        });
+    for (int num : input) {
+        if (uniqueElements.find(num) == uniqueElements.end() && toRemove.find(num) == toRemove.end()) {
+            uniqueElements.insert(num);
+        }
+        else {
+            toRemove.insert(num);
+        }
+    }
+    for (int num : input) {
+        if (toRemove.find(num) == toRemove.end()) {
+            result.push_back(num);
+        }
+    }
     return result;
 }
 
@@ -68,23 +77,15 @@ int main() {
         std::cout << "Average search time: " << searchTime << " seconds" << std::endl;
         std::cout << "Average add/remove time: " << addRemoveTime << " seconds" << std::endl;
 
-        std::vector<int> input = { 3, 2, 2, 4 };
-        std::vector<int> result = removeDuplicates(input);
+        std::vector<int> input = { 3, 2, 2, 4, 5, 3, 1, 7, 4 };
+        std::vector<int> result = removeDuplicatesUnique(input);
 
         // Вывод результата
-        std::cout << "Original vector: ";
-        for (int num : input) {
-            std::cout << num << " ";
-        }
-        std::cout << std::endl;
-
-        std::cout << "Vector with unique elements: ";
+        std::cout << "Unique elements: ";
         for (int num : result) {
             std::cout << num << " ";
         }
         std::cout << std::endl;
-
-        return 0;
     }
 
     return 0;
