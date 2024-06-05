@@ -25,25 +25,29 @@ double calculateAverageTime(int size, int numAttempts, std::function<void()> ope
 }
 
 std::vector<int> removeDuplicatesUnique(const std::vector<int>& input) {
-    std::unordered_set<int> uniqueElements;
-    std::unordered_set<int> toRemove;
+    std::set<int> uniqueElements;
     std::vector<int> result;
+    std::vector<int> duplicates;
     for (int num : input) {
-        if (uniqueElements.find(num) == uniqueElements.end() && toRemove.find(num) == toRemove.end()) {
+        if (uniqueElements.find(num) == uniqueElements.end()) {
             uniqueElements.insert(num);
-        }
-        else {
-            toRemove.insert(num);
-        }
-    }
-    for (int num : input) {
-        if (toRemove.find(num) == toRemove.end()) {
             result.push_back(num);
         }
+        else {
+            duplicates.push_back(num);
+        }
     }
+
+    // Удаляем дубликаты из result
+    for (int num : duplicates) {
+        auto it = std::find(result.begin(), result.end(), num);
+        if (it != result.end()) {
+            result.erase(it);
+        }
+    }
+
     return result;
 }
-
 int main() {
     const int numAttempts = 1000; // Количество попыток для вычисления среднего времени
     std::vector<int> sizes = { 1000, 10000, 100000 };
